@@ -1,0 +1,10 @@
+#!/media/swaggyp1985/HDD4T/OSU_Projects_2017-2018/App_Projects/johnson_lateblight_dev_app/johnson_lb_app/bin/python
+# -*- coding: utf-8 -*-
+import re
+import sys
+
+from jupyter_core.troubleshoot import main
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
