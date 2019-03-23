@@ -375,4 +375,4 @@ def update_graph(n_clicks, zipcodes, pick_date, interp, model_dropdown, outbreak
     return src
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
