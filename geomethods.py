@@ -88,24 +88,3 @@ def useInterpolate(ref_points, ref_values, query_point, method = 'NND'):
     return interp_array(query_point)
 
 
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-def geoCoordsEstimator():
-    """
-    barycentric coordinates
-    """
