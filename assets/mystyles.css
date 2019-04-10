@@ -88,3 +88,9 @@
     font-size: 2rem;
     display: inline-block;
 }
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    color: rgb(153, 152, 152);
+}

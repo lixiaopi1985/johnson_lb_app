@@ -49,6 +49,7 @@ server = app.server
 navbar = dbc.NavbarSimple(
     children = [
         dbc.NavItem(dbc.NavLink("Home", href="#")),
+        dbc.NavItem(dbc.NavLink("Source", href="https://www.apsnet.org/publications/phytopathology/backissues/Documents/1996Articles/Phyto86n05_480.pdf")),
         dbc.DropdownMenu(
             children = [
                 dbc.DropdownMenuItem("Other models", header = True)
@@ -58,7 +59,7 @@ navbar = dbc.NavbarSimple(
             label = "models",
         )
     ],
-    brand = 'Johnson Potato Late Blight Model',
+    brand = 'Johnson Potato Late Blight Forecast Model',
     color = "dark",
     dark = True,
     fluid=True
@@ -198,6 +199,9 @@ _body = html.Div([
 
     ], className="rowpanel"),
 
+    
+
+
         
 ])
 
@@ -210,7 +214,7 @@ def serve_layout():
     _body,
 
     html.Div(
-        id='Here'
+        html.Footer("@2019 Oregon State University Hermiston Agricultural and Research CenterContact: lixiaopi@oregonstate.edu", id='footer')
     )])
 
 app.layout = serve_layout
