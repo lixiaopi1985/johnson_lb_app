@@ -1,0 +1,90 @@
+.rowpanel {
+    margin-top: 50px;
+}
+
+.navbar {
+    font-size: 1.2rem;
+}
+
+.navbar-brand {
+    font-size: 2rem;
+}
+
+.col1 {
+    margin-left: 2rem;
+    margin-top: 3rem;
+}
+
+.col2 {
+    margin-left: 2rem;
+    margin-top: 5rem;
+}
+
+.labels {
+    margin-left: 0.5rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.1rem;
+}
+
+.inputs {
+    margin-left: 0.5rem;
+    width: 20rem;
+}
+
+.submit-button {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0.5rem;
+}
+
+.popupinfo {
+    margin-left: 0.5rem;
+    /* animation:popupinfo 1s 1;
+    -webkit-animation:popupinfo 1s 1;
+    animation-fill-mode: forwards; */
+}
+
+
+
+/* @keyframes popupinfo{
+    from{ opacity: 1;}
+    to{ opacity: 0;}
+}
+
+@-webkit-keyframes popupinfo {
+    from{ opacity: 1;}
+    to{ opacity: 0;}
+} */
+
+#graph {
+    width: 100%;
+    height: 100%;
+    border:None;
+}
+
+#display-label-risk {
+    margin-top: 1rem;
+    font-size: 2rem;
+    display: inline-block;
+}
+
+#display-label-year {
+    margin-top: 1rem;
+    font-size: 2rem;
+    display: inline-block;
+}
+
+
+#dRisk {
+
+    margin-left: 0.5rem;
+    font-size: 2rem;
+    display: inline-block;
+}
+
+#dYear {
+
+    margin-left: 0.5rem;
+    font-size: 2rem;
+    display: inline-block;
+}

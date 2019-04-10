@@ -5,86 +5,132 @@ import numpy as np
 from math import radians, sin, cos, atan2,sqrt
 from scipy import interpolate as Interp
 from geopy.distance import geodesic
+import pykrige.kriging_tools as kt
+from pykrige.ok import OrdinaryKriging
 
 
 
-# def geoCoordsDistance(pos1, pos2):
-#     """uses 'havesine' formula
-
-#     havesine: a = sin(delta_lat/2)**2 + cos(lat1)cos(lat2)*(sin(delta_lon/2)**2)
-
-#               c = 2* atan2(sqrt(a), sqrt(1-a))
-
-#               d = R*c
-    
-#     Arguments:
-#         pos1 tuple or list or np array -- place 1 coordinate (45.555, -112.2200)
-#         pos2 tuple or list or np array -- place 2 coordinate (45.555, -112.2200)
-
-#     return distance in miles
-#     """
-
-#     R = 3958.8 # miles earth radius 6371e3 km
-
-#     lat1 = radians(pos1[0]); lon1 = radians(pos1[1])
-#     lat2 = radians(pos2[0]); lon2 = radians(pos2[1])
-
-#     delta_lat = lat2 - lat1
-#     delta_lon = lon2 - lon1
-
-    
-#     a = sin(delta_lat/2)**2 + cos(lat1)*cos(lat2)*(sin(delta_lon/2)**2)
-
-#     c = 2*atan2(sqrt(a), sqrt(1-a))
-
-#     return R*c
-
-
-
-
-
-def picknearest10(ref_df, query_points):
-    """[summary]
-    
-    Arguments:
-        ref_df {[type]} -- [description]
-        query_points {[type]} -- [description]
-    
-    Returns:
-        [type] -- [description]
-    """
-
-    coords = list(zip(ref_df['Lat'], ref_df['Lon']))
-    dist = [ {'index': index, 'dist': geodesic(query_points, val).miles } for index, val in enumerate(coords) ]
-
-    dist_c = dist[:]
-    # pick the nearest 10
-    dist_c.sort(key=lambda x: x['dist'])
-
-    return dist_c[0:10]
-
-
-def useInterpolate(ref_points, ref_values, query_point, method = 'NND'):
+class InterpolationMethods:
     """uses scipy interploate NeareastNDInterpolator.
     Turn coordinates decimal to radians
     
     Arguments:
-        ref_points {array of coordinates} -- np.array([x, y])
-        ref_values {array of values} -- np.array([pm])
+        ref_coord_value: {ndarray} -- array([[x, y, value]])
         query_point {list or array} -- coordinates to interpolate
-        method {string} -- method to use to interpolate: NND, LND
     """
 
-    ref_p_radian = np.array(list(map(lambda x: (radians(x[0]), radians(x[1])), ref_points)))
+    def __init__(self, ref_df, query_point, properties):
+        self.ref_df = ref_df
+        self.query_point = query_point
+        self.properties = properties
 
-    ref_values = np.array(ref_values)
+    @staticmethod
+    def df2array(df, properties):
+        """[summary]
+        
+        Arguments:
+            properties {column names} -- eg: [latitude,longitude,PP]
 
-    interp_array = Interp.NearestNDInterpolator(ref_p_radian, ref_values)
+        Returns:
+            ndarray
+        """
+        assert type(properties) == list, "Properties is a list"
+        ref_coord_value = df.loc[:, properties].values
+        return ref_coord_value
 
-    if method == 'LND':
-        interp_array = Interp.LinearNDInterpolator(ref_p_radian, ref_values)
 
 
-    return interp_array(query_point)
+    def generateCoordValues(self):
+        self.ref_coord_value = InterpolationMethods.df2array(self.ref_df, self.properties)
+        return self
+
+    def picknearestN(self, N=-1):
+        """[summary]
+        
+        Arguments:
+            N: top values to return, default: whole
+        
+        Returns:
+            tuple of lists: index, distance
+        """
+
+        coords = list(zip(self.ref_coord_value[:, 0], self.ref_coord_value[:, 1])) #(lat, long)
+        dist = [ {'index': index, 'dist': geodesic(self.query_point, val).miles } for index, val in enumerate(coords) ]
+        dist_c = dist[:]
+        # pick the nearest 10
+        dist_c.sort(key=lambda x: x['dist'])
+        topN = dist_c[0:N]
+
+        self.index = [ i['index'] for i in topN]
+        self.dist_N = [ i['dist'] for i in topN]
+        self.topDF = self.ref_df.loc[self.index, self.properties]
+
+        return self
 
 
+    def NND(self):
+        coord_value = InterpolationMethods.df2array(self.topDF, self.properties)
+        ref_p_radian = np.array(list(map(lambda x: (radians(x[0]), radians(x[1])), coord_value)))
+        ref_values = np.array(coord_value[:, 2])
+        interp_array = Interp.NearestNDInterpolator(ref_p_radian, ref_values)
+        result = interp_array(self.query_point)
+
+        return round(float(result), 2)
+
+
+    def IWD(self, power=2):
+
+
+        distance = np.array(self.dist_N)
+        known_values = self.topDF.values[:, 2]
+
+        powered_distance = np.power(distance, power)
+        numerator = np.sum( known_values / powered_distance )
+        denominator = np.sum( 1.0 / powered_distance )
+        result = numerator / denominator
+        return round(result, 2)
+
+
+    def radicalFunc(self, fun='gaussian'):
+
+        """
+        see https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Rbf.html
+        """
+        mtx = self.topDF.values
+
+        rbfi = Interp.Rbf(mtx[:, 0], mtx[:, 1], mtx[:, 2], fun=fun)
+
+        di = rbfi(self.query_point[0], self.query_point[1])
+
+        return round(float(di), 2)
+
+
+    def kriging(self, type='Ordinary', variogram_model='gaussian', intertype="points"):
+        """https://buildmedia.readthedocs.org/media/pdf/pykrige/latest/pykrige.pdf"""
+        mtx = self.topDF.values
+        OK = OrdinaryKriging(mtx[:, 0], mtx[:, 1], mtx[:, 2], variogram_model = variogram_model, verbose=False, enable_plotting=False)
+        z, _ = OK.execute(intertype, self.query_point[0], self.query_point[1])
+
+        return round(float(z),2)
+
+
+    def pickMethods(self, methods="IDW"):
+
+        result = None
+        if methods == "IDW":
+            result = self.IWD()
+
+        elif methods == "NND":
+            result = self.NND()
+
+        elif methods == "Radical":
+            result = self.radicalFunc()
+
+        elif methods == 'Krig':
+            result = self.kriging()
+
+        else:
+            raise ValueError("No such methods")
+
+        return result
+        
