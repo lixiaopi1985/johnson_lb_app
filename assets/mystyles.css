@@ -64,13 +64,14 @@
 
 #display-label-risk {
     margin-top: 1rem;
-    font-size: 2rem;
+    font-size: 1.5rem;
     display: inline-block;
 }
 
 #display-label-year {
-    margin-top: 1rem;
-    font-size: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
     display: inline-block;
 }
 
@@ -78,18 +79,19 @@
 #dRisk {
 
     margin-left: 0.5rem;
-    font-size: 2rem;
+    font-size: 1.5rem;
     display: inline-block;
 }
 
 #dYear {
-
     margin-left: 0.5rem;
-    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
     display: inline-block;
 }
 
 #footer {
+    margin-top:0.5rem;
     position: absolute;
     bottom: 0;
     color: rgb(153, 152, 152);

@@ -27,7 +27,7 @@ metatable = 'StationInfo'
 
 zipcodepath = './zipcode/us-zip-code-latitude-and-longitude.csv'
 jsonpath = os.path.join('static', 'weather.geojson')
-gradient_color = {0:'255, 255, 255', 0.1:'rgb(0, 242, 255)', 0.25:'rgb(195, 255, 0)', 0.5:'rgb(255, 238, 0)', 0.75:'rgb(255, 255, 0)', 1.0:'rgb(255, 0, 0'}
+
 
 
 

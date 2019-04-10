@@ -8,17 +8,21 @@ from folium.features import DivIcon
 color_list = ['white', 'cyan', 'chartreuse','yellow',  'orange', 'red']
 color_ratio = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
 cmap = cm.LinearColormap(color_list, index= color_ratio)
+cmap.caption = "Risk Probability"
 cmap_dict = dict(zip(color_ratio, color_list))
 
 
 tile_NatGeo = "https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}"
-attr_NatGeo = "'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'"
+tile_WorldTopo = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+
+attr_NatGeo = 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+attr_WorldTopo = 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
 
 class FoliumMaps:
 
     osu_coords = [45.8169,  -119.2850]
 
-    def __init__(self, savename, tiles=tile_NatGeo, attr=attr_NatGeo, zoom_start = 6):
+    def __init__(self, savename, tiles=tile_WorldTopo, attr=attr_WorldTopo, zoom_start = 6):
         self.savepath = os.path.join("./static/{}.html".format(savename))
         self.tiles = tiles
         self.attr = attr
@@ -31,6 +35,7 @@ class FoliumMaps:
     def add_heatmap(self, data, min_opacity=0.6, max_zoom=15, max_val=1, radius=12, blur=10, gradient = cmap_dict):
         HeatMap(data=data, min_opacity=min_opacity, 
         max_zoom=max_zoom, max_val=max_val, radius=radius, blur=blur, gradient=gradient).add_to(self.base_map)
+        self.base_map.add_children(cmap)
 
     def add_marker(self, location, *args):
         popup = "".join(args)
